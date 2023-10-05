@@ -1,44 +1,65 @@
 import { useState } from "react";
 import ChatApp from "./pages/ChatApp";
+import io from "socket.io-client";
 
+const socket = io("http://localhost:5000");
 function App() {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
   const [sender, setSender] = useState("");
   const [roomID, setRoomID] = useState("");
   const [receiver, setReceiver] = useState("");
+  const [showCat, setShowCat] = useState(false);
+
+  const joinRoom = () => {
+    if (sender !== "" && roomID !== "") {
+      socket.emit("join_room", roomID);
+      setShowCat(true);
+    }
+  };
   return (
     <div className="App">
+      {console.log("showCat", showCat)}
       <h1 className="text-3xl text-center">This is ChatApp </h1>
-      <form>
-        <input
-          type="text"
-          placeholder="Sender"
-          onChange={(e) => setSender(e.target.value)}
-          className="mt-4 mb-4"
+      {!showCat ? (
+        <div className="flex justify-center items-center  ">
+          <form className="border-2 border-gray-600 w-64 align-center justify-center">
+            <input
+              type="text"
+              placeholder="Sender"
+              onChange={(e) => setSender(e.target.value)}
+              className="m-5 border border-gray-600"
+            />
+            <br />
+            <input
+              type="text"
+              placeholder="Room ID"
+              onChange={(e) => setRoomID(e.target.value)}
+              className="m-5 border border-gray-600"
+            />
+            <br />
+            <input
+              type="text"
+              placeholder="Receiver"
+              onChange={(e) => setReceiver(e.target.value)}
+              className="m-5 border border-gray-600"
+            />
+            <br />
+            <button
+              className="flex items-end justify-end bg-blue-500 text-white p-2 m-6 rounded"
+              type="submit"
+              onClick={joinRoom}
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      ) : (
+        <ChatApp
+          sender={sender}
+          receiver={receiver}
+          roomID={roomID}
+          socket={socket}
         />
-        <input
-          type="text"
-          placeholder="Room ID"
-          onChange={(e) => setRoomID(e.target.value)}
-          className="mb-4"
-        />
-        <input
-          type="text"
-          placeholder="Receiver"
-          onChange={(e) => setReceiver(e.target.value)}
-          className="mb-4"
-        />
-        <button
-          className="bg-blue-500 text-white p-2"
-          type="submit"
-          onClick={handleSubmit}
-        >
-          Send
-        </button>
-      </form>
-      <ChatApp sender={sender} receiver={receiver} roomID={roomID} />
+      )}
     </div>
   );
 }
