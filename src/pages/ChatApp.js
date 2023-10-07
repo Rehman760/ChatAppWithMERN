@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ChatApp = ({ sender, receiver, roomID, socket }) => {
+const ChatApp = ({ sender, receiver, socket }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
@@ -11,7 +11,6 @@ const ChatApp = ({ sender, receiver, roomID, socket }) => {
       message,
       sender,
       receiver,
-      roomID,
     });
   };
 
@@ -23,7 +22,6 @@ const ChatApp = ({ sender, receiver, roomID, socket }) => {
         message: newMessage,
         sender: sender,
         receiver: receiver,
-        roomID: roomID,
       });
 
       // Add the message to the local state
@@ -40,18 +38,35 @@ const ChatApp = ({ sender, receiver, roomID, socket }) => {
   useEffect(() => {
     // Replace with your backend API endpoint for getting messages
     axios
-      .get(`/api/${roomID}`) // Use the correct endpoint URL
+      .get(`/api/messages/${sender}/${receiver}`) // Use the correct endpoint URL
       .then((response) => setMessages(response.data))
       .catch((error) => console.error("Error getting messages:", error));
-  }, [newMessage, messages, roomID]);
+  }, [newMessage]);
 
   return (
     <div className="container mx-auto p-4">
       <div className="border border-gray-300 p-4 h-96 overflow-y-auto">
         {messages.map((message, index) => (
-          <div key={index} className="mb-2">
-            <span className="text-gray-500">{message.sender}: </span>
-            {message.message}
+          <div
+            key={index}
+            className={`mb-2 ${
+              message.sender === sender ? "text-right" : "text-left"
+            }`}
+          >
+            {message.sender !== sender && (
+              <div className="bg-blue-500 text-white rounded-lg p-2 mb-1">
+                <span className="font-semibold">{message.sender}</span>
+                <br />
+                {message.message}
+              </div>
+            )}
+            {message.sender === sender && (
+              <div className="bg-gray-300 rounded-lg p-2 mb-1">
+                <span className="font-semibold">{message.receiver}</span>
+                <br />
+                {message.message}
+              </div>
+            )}
           </div>
         ))}
       </div>

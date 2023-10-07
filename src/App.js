@@ -5,13 +5,12 @@ import io from "socket.io-client";
 const socket = io("http://localhost:5000");
 function App() {
   const [sender, setSender] = useState("");
-  const [roomID, setRoomID] = useState("");
   const [receiver, setReceiver] = useState("");
   const [showCat, setShowCat] = useState(false);
 
   const joinRoom = () => {
-    if (sender !== "" && roomID !== "") {
-      socket.emit("join_room", roomID);
+    if (sender !== "" && receiver !== "") {
+      socket.emit("join_room", receiver);
       setShowCat(true);
     }
   };
@@ -29,12 +28,6 @@ function App() {
               className="m-5 border border-gray-600"
             />
             <br />
-            <input
-              type="text"
-              placeholder="Room ID"
-              onChange={(e) => setRoomID(e.target.value)}
-              className="m-5 border border-gray-600"
-            />
             <br />
             <input
               type="text"
@@ -53,12 +46,7 @@ function App() {
           </form>
         </div>
       ) : (
-        <ChatApp
-          sender={sender}
-          receiver={receiver}
-          roomID={roomID}
-          socket={socket}
-        />
+        <ChatApp sender={sender} receiver={receiver} socket={socket} />
       )}
     </div>
   );
